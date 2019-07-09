@@ -63,6 +63,7 @@ namespace WindowsFormsApp2
         string serverip = "\"106.103.233.155\"";
         string serverport = "5783";
         int network_chkcnt = 3;
+        string MQTT_Msg = "";
         string nextcommand = "";    //OK를 받은 후 전송할 명령어가 존재하는 경우
                                     //예를들어 +CEREG와 같이 OK를 포함한 응답 값을 받은 경우 OK처리 후에 명령어를 전송해야 한다
                                     // states 값을 바꾸고 명령어를 전송하면 명령의 응답을 받기전 이전에 받았던 OK에 동작할 수 있다.
@@ -613,7 +614,9 @@ namespace WindowsFormsApp2
                 "+CEREG:",      // LTE network 상태를 확인하고 연결이 되어 있지 않으면 재접속 시도
                 "+QLWEVENT:",    // 모듈 부팅시, LWM2M 등록 상태 이벤트, 진행 상태를 status bar에 진행율 표시
                 "+QLWDLDATA:",
-                ">"
+                "+ICCID:",
+                ">",
+                "+QMTRECV:"
         };
 
             /* Debug를 위해 Hex로 문자열 표시*/
@@ -879,6 +882,36 @@ namespace WindowsFormsApp2
                     logPrintInTextBox("지원하지 않는 data object입니다.", "");
                 }
             }
+            else if(s == ">")
+            {
+                if (tBoxActionState.Text == "mqttpub")
+                {
+                    this.sendDataOut(MQTT_Msg);
+                    tBoxActionState.Text = states.mqttpubtext.ToString();
+                    timer1.Start();
+                }
+                else
+                {
+                    logPrintInTextBox("MQTT data 전송 상태가 아닙니다.", "");
+                }
+            }
+            else if (s == "+QMTRECV:")
+            {
+                // 모듈이 MQTT서버에서 받은 데이터를 전달하는 이벤트,
+                // OK 응답 발생하지 않음
+                string[] words = str2.Split(',');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+                if (words[0] == " 0")       // MQTT 소켓 ID ("0"만 사용)
+                {
+                    logPrintInTextBox(words[3] + "를 수신하였습니다.", "");
+                    //logPrintInTextBox(words[3].Substring(1, words[3].Length - 2) + "를 수신하였습니다.", "");
+                }
+                else
+                {
+                    logPrintInTextBox("지원하지 않는 data object입니다.", "");
+                }
+            }
+
+            
         }
 
         private void parseNoPrefixData(string str1)
@@ -1140,12 +1173,13 @@ namespace WindowsFormsApp2
 
         private void sendDataToServer(string text)
         {
-                // Data send to SERVER (string original)
-                //AT+QLWM2M="uldata",<object>,<length>,<data>
-                this.sendDataOut(commands["sendmsgstr"] + text.Length + ",\"" + text + "\"");
-                tBoxActionState.Text = states.sendmsgstr.ToString();
+            // Data send to SERVER (string original)
+            this.sendDataOut(commands["mqttpub"] + tBoxMqttPublish.Text + "\"," + text.Length);
+            tBoxActionState.Text = states.mqttpub.ToString();
 
-                timer1.Start();
+            MQTT_Msg = text;
+
+            timer1.Start();
         }
 
         private string BcdToString(char[] charValues)
