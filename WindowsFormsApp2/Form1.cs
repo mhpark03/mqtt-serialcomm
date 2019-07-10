@@ -52,6 +52,11 @@ namespace WindowsFormsApp2
             mqttsub,
             mqttunsub,
             mqttdisconn,
+            automqttopen,
+            automqttconn,
+            automqttsub,
+            automqttunsub,
+            automqttdisconn,
             mqttclose,
             mqttpub,
             mqttpubtext
@@ -158,6 +163,11 @@ namespace WindowsFormsApp2
             commands.Add("mqttsub", "AT+QMTSUB=0,1,\"");
             commands.Add("mqttunsub", "AT+QMTUNS=0,1,\"");
             commands.Add("mqttdisconn", "AT+QMTDISC=0");
+            commands.Add("automqttopen", "AT+QMTOPEN=0,\"");
+            commands.Add("automqttconn", "AT+QMTCONN=0,\"");
+            commands.Add("automqttsub", "AT+QMTSUB=0,1,\"");
+            commands.Add("automqttunsub", "AT+QMTUNS=0,1,\"");
+            commands.Add("automqttdisconn", "AT+QMTDISC=0");
             commands.Add("mqttclose", "AT+QMTCLOSE=0");
             commands.Add("mqttpub", "AT+QMTPUB=0,0,0,0,\"");
             commands.Add("mqttpubtext", ">");
@@ -616,7 +626,10 @@ namespace WindowsFormsApp2
                 "+QLWDLDATA:",
                 "+ICCID:",
                 ">",
-                "+QMTRECV:"
+                "+QMTRECV:",
+                "+QMTOPEN:",
+                "+QMTCONN:",
+                "+QMTUNS:"
         };
 
             /* Debug를 위해 Hex로 문자열 표시*/
@@ -736,6 +749,59 @@ namespace WindowsFormsApp2
                         // LTE network attach 요청하면 정상적으로 attach 성공했는지 확인 필요
                         nextcommand = states.getcereg.ToString();
                         break;
+                    case states.mqttopen:
+                        // OK 수신한 다음에 +QMTOPEN을 기다렸다가 connect 시도해야 함.
+                        nextcommand = "skip";
+                        tSStatusLblMQTT.Text = "open";
+                        tSProgressMQTT.Value = 50;
+                        break;
+                    case states.automqttopen:
+                        // OK 수신한 다음에 +QMTOPEN을 기다렸다가 connect 시도해야 함.
+                        nextcommand = "skip";
+                        tSStatusLblMQTT.Text = "open";
+                        tSProgressMQTT.Value = 50;
+                        break;
+                    case states.mqttconn:
+                        // OK 수신한 다음에 +QMTCONN을 기다렸다가 subscribe 시도해야 함.
+                        tSStatusLblMQTT.Text = "connect";
+                        nextcommand = "skip";
+                        tSProgressMQTT.Value = 50;
+                        break;
+                    case states.automqttconn:
+                        // OK 수신한 다음에 +QMTCONN을 기다렸다가 subscribe 시도해야 함.
+                        tSStatusLblMQTT.Text = "connect";
+                        nextcommand = "skip";
+                        tSProgressMQTT.Value = 50;
+                        break;
+                    case states.mqttsub:
+                        // MQTT 서버 Subscribe 등록 성공
+                        tSStatusLblMQTT.Text = "subscribe";
+                        tSProgressMQTT.Value = 100;
+                        logPrintInTextBox("MQTT 서버에 Subscribe가 성공하였습니다.","");
+                        break;
+                    case states.mqttunsub:
+                        // MQTT 서버 Subscribe 해제
+                        tSStatusLblMQTT.Text = "connect";       //서버 연결 상태로 pub는 가능하나 subscribe 불가 상태
+                        nextcommand = "skip";
+                        tSProgressMQTT.Value = 50;
+                        break;
+                    case states.automqttunsub:
+                        // MQTT 서버 자동 연결 해제 요청시 +QMTUNS 기다렸다가 진행
+                        nextcommand = "skip";
+                        tSStatusLblMQTT.Text = "connect";       //서버 연결 상태로 pub는 가능하나 subscribe 불가 상태
+                        tSProgressMQTT.Value = 50;
+                        break;
+                    case states.mqttdisconn:
+                        // MQTT 서버 연결 해제
+                        tSStatusLblMQTT.Text = "disconnect";
+                        tSProgressMQTT.Value = 0;
+                        logPrintInTextBox("MQTT 서버와 연결이 해제되었습니다.", "");
+                        break;
+                    case states.mqttclose:
+                        // MQTT 서버 Socket 해제
+                        tSStatusLblMQTT.Text = "disconnect";
+                        tSProgressMQTT.Value = 0;
+                        break;
                     default:
                         break;
                 }
@@ -819,69 +885,6 @@ namespace WindowsFormsApp2
                 tBoxActionState.Text = states.idle.ToString();
                 timer1.Stop();
             }
-            else if (s == "+QLWEVENT:")
-            {
-                // 모듈이 LWM2M서버에 접속/등록하는 단계에서 발생하는 이벤트,
-                // OK 응답 발생하지 않음
-                char[] lwm2mstep = str2.ToCharArray();
-                int value = Convert.ToInt32(lwm2mstep[0]);
-                if (value < 6)
-                {
-                    tSProgressLwm2m.Value = value * 20;
-
-                }
-                else
-                {
-                    tSProgressLwm2m.Value = 100;
-                }
-
-                int first = str2.IndexOf("\"");
-                int last = str2.LastIndexOf("\"");
-                string lwm2mstate = str2.Substring(first+1, last-first-2);
-                tSStatusLblLWM2M.Text = lwm2mstate;
-            }
-            else if (s == "+QLWDLDATA:")
-            {
-                // 모듈이 LWM2M서버에서 받은 데이터를 전달하는 이벤트,
-                // OK 응답 발생하지 않고 bcd를 ascii로 변경해야함
-                string[] words = str2.Split(',');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
-                if(words[0] == " \"/10250/0/1\"")       // data object인지 확인
-                {
-                    if(words[1] == "4")     // string data received
-                    {
-                        if (Convert.ToInt32(words[2]) == (words[3].Length - 2))    // data size 비교 (양쪽 끝의 " 크기 빼고)
-                        {
-                            logPrintInTextBox(words[3]+"를 수신하였습니다.", "");
-                        }
-                        else
-                        {
-                            logPrintInTextBox("data size가 맞지 않습니다.", "");
-                        }
-                    }
-                    else if (words[1] == "5")     // hex data received
-                    {
-                        if (Convert.ToInt32(words[2]) == (words[3].Length - 2) / 2)    // data size 비교 (양쪽 끝의 " 크기 빼고 2bytes가 1글자임)
-                        {
-                            //received hex data make to ascii code
-                            string hexInPut = words[3].Substring(1, words[3].Length - 2);
-                            string receiveDataIN = BcdToString(hexInPut.ToCharArray());
-                            logPrintInTextBox("\"" + receiveDataIN + "\"를 수신하였습니다.", "");
-                        }
-                        else
-                        {
-                            logPrintInTextBox("data size가 맞지 않습니다.", "");
-                        }
-                    }
-                }
-                else if (words[0] == " \"/26241/0/1\"")       // device firmware object인지 확인
-                {
-
-                }
-                else
-                {
-                    logPrintInTextBox("지원하지 않는 data object입니다.", "");
-                }
-            }
             else if(s == ">")
             {
                 if (tBoxActionState.Text == "mqttpub")
@@ -910,8 +913,39 @@ namespace WindowsFormsApp2
                     logPrintInTextBox("지원하지 않는 data object입니다.", "");
                 }
             }
-
-            
+            else if (s == "+QMTOPEN:")
+            {
+                // 모듈이 MQTT서버 Socket Open이 완료되면 전달하는 이벤트,
+                // OK 응답 이후에 발생
+                if(tBoxActionState.Text == states.automqttopen.ToString())
+                {
+                    // MQTT 서버 자동 연결 요청시
+                    // (automqttopen) -> (automqttconn) -> mqttsub
+                    MqttServerConnect(states.automqttconn.ToString());
+                }
+            }
+            else if (s == "+QMTCONN:")
+            {
+                // 모듈이 MQTT서버와 연결이 되면 전달하는 이벤트,
+                // OK 응답 이후에 발생
+                if (tBoxActionState.Text == states.automqttconn.ToString())
+                {
+                    // MQTT 서버 자동 연결 요청시
+                    // automqttopen -> (automqttconn) -> (mqttsub)
+                    MqttSubscribe(states.mqttsub.ToString());
+                }
+            }
+            else if (s == "+QMTUNS:")
+            {
+                // 모듈이 MQTT서버와 Unsubscribe 되면 전달하는 이벤트,
+                // OK 응답 이후에 발생
+                if (tBoxActionState.Text == states.automqttunsub.ToString())
+                {
+                    // MQTT 서버 자동 연결 해제 요청시
+                    // automqttunsub -> mqttdisconn
+                    MqttServerDisconn(states.mqttdisconn.ToString());
+                }
+            }
         }
 
         private void parseNoPrefixData(string str1)
@@ -940,8 +974,6 @@ namespace WindowsFormsApp2
                 case states.autogetimsi:
                     tBoxIMSI.Text = str1;
                     tBoxDeviceID.Text = str1;
-                    tBoxMqttPublish.Text = "topicpub/" + str1;
-                    tBoxMqttsubscribeID.Text = "topicsub/" + str1;
                     tBoxActionState.Text = states.idle.ToString();
                     nextcommand = states.autogetimei.ToString();
                     this.logPrintInTextBox("IMSI값이 저장되었습니다.", "");
@@ -1000,8 +1032,6 @@ namespace WindowsFormsApp2
                 case states.getimsi:
                     tBoxIMSI.Text = str1;
                     tBoxDeviceID.Text = str1;
-                    tBoxMqttPublish.Text = "topicpub/" + str1;
-                    tBoxMqttsubscribeID.Text = "topicsub/" + str1;
                     tBoxActionState.Text = states.idle.ToString();
                     timer1.Stop();
                     this.logPrintInTextBox("IMSI값이 저장되었습니다.", "");
@@ -1173,13 +1203,20 @@ namespace WindowsFormsApp2
 
         private void sendDataToServer(string text)
         {
-            // Data send to SERVER (string original)
-            this.sendDataOut(commands["mqttpub"] + tBoxMqttPublish.Text + "\"," + text.Length);
-            tBoxActionState.Text = states.mqttpub.ToString();
+            if ((tSStatusLblMQTT.Text == "subscribe") || (tSStatusLblMQTT.Text == "connect") || (tSStatusLblMQTT.Text == "unsubscribe"))
+            {
+                // Data send to SERVER (string original)
+                this.sendDataOut(commands["mqttpub"] + tBoxMqttTopic.Text + "\"," + text.Length);
+                tBoxActionState.Text = states.mqttpub.ToString();
 
-            MQTT_Msg = text;
+                MQTT_Msg = text;
 
-            timer1.Start();
+                timer1.Start();
+            }
+            else
+            {
+                logPrintInTextBox("MQTT 서버 연결 상태를 확인하시고 재시도하세요.", "");
+            }
         }
 
         private string BcdToString(char[] charValues)
@@ -1268,36 +1305,61 @@ namespace WindowsFormsApp2
 
         private void MQTTStartToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.sendDataOut(commands["mqttopen"]+ tBoxSVCIP.Text + "\"," + tBoxSVCPort.Text);
-            tBoxActionState.Text = states.mqttopen.ToString();
+            MqttServerOpen(states.mqttopen.ToString());
+        }
+
+        private void MqttServerOpen(string cmd)
+        {
+            this.sendDataOut(commands[cmd] + tBoxSVCIP.Text + "\"," + tBoxSVCPort.Text);
+            tBoxActionState.Text = cmd;
             timer1.Start();
         }
 
         private void MQTTToolStripMenuConnect_Click(object sender, EventArgs e)
         {
-            this.sendDataOut(commands["mqttconn"] + tBoxDeviceID.Text + "\"");
-            tBoxActionState.Text = states.mqttconn.ToString();
+            MqttServerConnect(states.mqttconn.ToString());
+        }
+
+        private void MqttServerConnect(string cmd)
+        {
+            this.sendDataOut(commands[cmd] + tBoxDeviceID.Text + "\"");
+            tBoxActionState.Text = cmd;
             timer1.Start();
         }
 
         private void MQTTToolStripMenuSubscribe_Click(object sender, EventArgs e)
         {
-            this.sendDataOut(commands["mqttsub"] + tBoxMqttsubscribeID.Text + "\",0");
-            tBoxActionState.Text = states.mqttsub.ToString();
+            MqttSubscribe(states.mqttsub.ToString());
+        }
+
+        private void MqttSubscribe(string cmd)
+        {
+            this.sendDataOut(commands[cmd] + tBoxMqttTopic.Text + "\",0");
+            tBoxActionState.Text = cmd;
             timer1.Start();
         }
 
         private void MQTTToolStripMenuItemUnsubcribe_Click(object sender, EventArgs e)
         {
-            this.sendDataOut(commands["mqttunsub"] + tBoxMqttsubscribeID.Text + "\"");
-            tBoxActionState.Text = states.mqttunsub.ToString();
+            MqttUnSubscribe(states.mqttunsub.ToString());
+        }
+
+        private void MqttUnSubscribe(string cmd)
+        {
+            this.sendDataOut(commands[cmd] + tBoxMqttTopic.Text + "\"");
+            tBoxActionState.Text = cmd;
             timer1.Start();
         }
 
         private void MQTTToolStripMenuDisconn_Click(object sender, EventArgs e)
         {
-            this.sendDataOut(commands["mqttdisconn"]);          // Diconnect가 성공하면 Close도 동시에 됨
-            tBoxActionState.Text = states.mqttdisconn.ToString();
+            MqttServerDisconn(states.mqttdisconn.ToString());
+        }
+
+        private void MqttServerDisconn(string cmd)
+        {
+            this.sendDataOut(commands[cmd]);          // Diconnect가 성공하면 Close도 동시에 됨
+            tBoxActionState.Text = cmd;
             timer1.Start();
         }
 
@@ -1306,6 +1368,38 @@ namespace WindowsFormsApp2
             this.sendDataOut(commands["mqttclose"]);
             tBoxActionState.Text = states.mqttclose.ToString();
             timer1.Start();
+        }
+
+        private void BtnMqttSocketOpen_Click(object sender, EventArgs e)
+        {
+            if (tSStatusLblMQTT.Text == "disconnect")
+            {
+                // MQTT 서버 자동 연결 요청시
+                // automqttopen -> automqttconn -> mqttsub
+                MqttServerOpen(states.automqttopen.ToString());
+            }
+            else if (tSStatusLblMQTT.Text == "open")
+            {
+                // MQTT 서버 자동 연결 요청시
+                // (automqttopen) -> (automqttconn) -> mqttsub
+                MqttServerConnect(states.automqttconn.ToString());
+            }
+            else if (tSStatusLblMQTT.Text == "connect")
+            {
+                // MQTT 서버 자동 연결 요청시
+                // automqttopen -> (automqttconn) -> (mqttsub)
+                MqttSubscribe(states.mqttsub.ToString());
+            }
+            else if (tSStatusLblMQTT.Text == "subscribe")
+            {
+                // MQTT 서버 자동 연결 해제 요청시
+                // automqttunsub -> mqttdisconn
+                MqttUnSubscribe(states.automqttunsub.ToString());
+            }
+            else
+            {
+                MqttServerDisconn(states.mqttdisconn.ToString());
+            }
         }
     }
 }

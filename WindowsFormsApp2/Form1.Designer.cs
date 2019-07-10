@@ -103,14 +103,12 @@
             this.cBoxATCMD = new System.Windows.Forms.ComboBox();
             this.btnATCMD = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tBoxMqttsubscribeID = new System.Windows.Forms.TextBox();
-            this.tBoxMqttPublish = new System.Windows.Forms.TextBox();
-            this.btnMqttPublish = new System.Windows.Forms.Button();
+            this.tBoxMqttTopic = new System.Windows.Forms.TextBox();
+            this.btnMqttTopic = new System.Windows.Forms.Button();
             this.tBoxDeviceID = new System.Windows.Forms.TextBox();
             this.button5 = new System.Windows.Forms.Button();
             this.tBoxSVCPort = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
-            this.btnMqttSubscribe = new System.Windows.Forms.Button();
             this.tBoxSVCIP = new System.Windows.Forms.TextBox();
             this.btnMqttSocketOpen = new System.Windows.Forms.Button();
             this.tBoxIccid = new System.Windows.Forms.TextBox();
@@ -134,8 +132,8 @@
             this.tSStatusLblLTE = new System.Windows.Forms.ToolStripStatusLabel();
             this.tSProgressLTE = new System.Windows.Forms.ToolStripProgressBar();
             this.tSStatusLblLWM2M1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tSStatusLblLWM2M = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tSProgressLwm2m = new System.Windows.Forms.ToolStripProgressBar();
+            this.tSStatusLblMQTT = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tSProgressMQTT = new System.Windows.Forms.ToolStripProgressBar();
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -668,49 +666,49 @@
             // mQTTToolStripMenuDeviceInfo
             // 
             this.mQTTToolStripMenuDeviceInfo.Name = "mQTTToolStripMenuDeviceInfo";
-            this.mQTTToolStripMenuDeviceInfo.Size = new System.Drawing.Size(180, 22);
+            this.mQTTToolStripMenuDeviceInfo.Size = new System.Drawing.Size(172, 22);
             this.mQTTToolStripMenuDeviceInfo.Text = "기기정보읽기";
             this.mQTTToolStripMenuDeviceInfo.Click += new System.EventHandler(this.MQTTToolStripMenuDeviceInfo_Click);
             // 
             // mQTTToolStripMenuOpen
             // 
             this.mQTTToolStripMenuOpen.Name = "mQTTToolStripMenuOpen";
-            this.mQTTToolStripMenuOpen.Size = new System.Drawing.Size(180, 22);
+            this.mQTTToolStripMenuOpen.Size = new System.Drawing.Size(172, 22);
             this.mQTTToolStripMenuOpen.Text = "소켓 설정";
             this.mQTTToolStripMenuOpen.Click += new System.EventHandler(this.MQTTStartToolStripMenuItem_Click);
             // 
             // mQTTToolStripMenuConnect
             // 
             this.mQTTToolStripMenuConnect.Name = "mQTTToolStripMenuConnect";
-            this.mQTTToolStripMenuConnect.Size = new System.Drawing.Size(180, 22);
+            this.mQTTToolStripMenuConnect.Size = new System.Drawing.Size(172, 22);
             this.mQTTToolStripMenuConnect.Text = "서버 연결";
             this.mQTTToolStripMenuConnect.Click += new System.EventHandler(this.MQTTToolStripMenuConnect_Click);
             // 
             // mQTTToolStripMenuSubscribe
             // 
             this.mQTTToolStripMenuSubscribe.Name = "mQTTToolStripMenuSubscribe";
-            this.mQTTToolStripMenuSubscribe.Size = new System.Drawing.Size(180, 22);
+            this.mQTTToolStripMenuSubscribe.Size = new System.Drawing.Size(172, 22);
             this.mQTTToolStripMenuSubscribe.Text = "수신등록(SUB)";
             this.mQTTToolStripMenuSubscribe.Click += new System.EventHandler(this.MQTTToolStripMenuSubscribe_Click);
             // 
             // mQTTToolStripMenuItemUnsubcribe
             // 
             this.mQTTToolStripMenuItemUnsubcribe.Name = "mQTTToolStripMenuItemUnsubcribe";
-            this.mQTTToolStripMenuItemUnsubcribe.Size = new System.Drawing.Size(180, 22);
+            this.mQTTToolStripMenuItemUnsubcribe.Size = new System.Drawing.Size(172, 22);
             this.mQTTToolStripMenuItemUnsubcribe.Text = "수신해제(SUB)";
             this.mQTTToolStripMenuItemUnsubcribe.Click += new System.EventHandler(this.MQTTToolStripMenuItemUnsubcribe_Click);
             // 
             // mQTTToolStripMenuDisconn
             // 
             this.mQTTToolStripMenuDisconn.Name = "mQTTToolStripMenuDisconn";
-            this.mQTTToolStripMenuDisconn.Size = new System.Drawing.Size(180, 22);
+            this.mQTTToolStripMenuDisconn.Size = new System.Drawing.Size(172, 22);
             this.mQTTToolStripMenuDisconn.Text = "서버 해제";
             this.mQTTToolStripMenuDisconn.Click += new System.EventHandler(this.MQTTToolStripMenuDisconn_Click);
             // 
             // mQTTToolStripMenuClose
             // 
             this.mQTTToolStripMenuClose.Name = "mQTTToolStripMenuClose";
-            this.mQTTToolStripMenuClose.Size = new System.Drawing.Size(180, 22);
+            this.mQTTToolStripMenuClose.Size = new System.Drawing.Size(172, 22);
             this.mQTTToolStripMenuClose.Text = "소켓해제";
             this.mQTTToolStripMenuClose.Click += new System.EventHandler(this.MQTTToolStripMenuClose_Click);
             // 
@@ -805,14 +803,12 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.tBoxMqttsubscribeID);
-            this.groupBox1.Controls.Add(this.tBoxMqttPublish);
-            this.groupBox1.Controls.Add(this.btnMqttPublish);
+            this.groupBox1.Controls.Add(this.tBoxMqttTopic);
+            this.groupBox1.Controls.Add(this.btnMqttTopic);
             this.groupBox1.Controls.Add(this.tBoxDeviceID);
             this.groupBox1.Controls.Add(this.button5);
             this.groupBox1.Controls.Add(this.tBoxSVCPort);
             this.groupBox1.Controls.Add(this.button3);
-            this.groupBox1.Controls.Add(this.btnMqttSubscribe);
             this.groupBox1.Controls.Add(this.tBoxSVCIP);
             this.groupBox1.Controls.Add(this.btnMqttSocketOpen);
             this.groupBox1.Controls.Add(this.tBoxIccid);
@@ -835,31 +831,24 @@
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             // 
-            // tBoxMqttsubscribeID
+            // tBoxMqttTopic
             // 
-            this.tBoxMqttsubscribeID.Location = new System.Drawing.Point(77, 298);
-            this.tBoxMqttsubscribeID.Name = "tBoxMqttsubscribeID";
-            this.tBoxMqttsubscribeID.Size = new System.Drawing.Size(126, 21);
-            this.tBoxMqttsubscribeID.TabIndex = 26;
-            this.tBoxMqttsubscribeID.Text = "topicsub/IMSI";
+            this.tBoxMqttTopic.Location = new System.Drawing.Point(77, 272);
+            this.tBoxMqttTopic.Name = "tBoxMqttTopic";
+            this.tBoxMqttTopic.Size = new System.Drawing.Size(126, 21);
+            this.tBoxMqttTopic.TabIndex = 25;
+            this.tBoxMqttTopic.Text = "topic/test";
             // 
-            // tBoxMqttPublish
+            // btnMqttTopic
             // 
-            this.tBoxMqttPublish.Location = new System.Drawing.Point(77, 271);
-            this.tBoxMqttPublish.Name = "tBoxMqttPublish";
-            this.tBoxMqttPublish.Size = new System.Drawing.Size(126, 21);
-            this.tBoxMqttPublish.TabIndex = 25;
-            this.tBoxMqttPublish.Text = "topicpub/IMSI";
-            // 
-            // btnMqttPublish
-            // 
-            this.btnMqttPublish.Location = new System.Drawing.Point(6, 271);
-            this.btnMqttPublish.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnMqttPublish.Name = "btnMqttPublish";
-            this.btnMqttPublish.Size = new System.Drawing.Size(66, 24);
-            this.btnMqttPublish.TabIndex = 24;
-            this.btnMqttPublish.Text = "Pub ID";
-            this.btnMqttPublish.UseVisualStyleBackColor = true;
+            this.btnMqttTopic.Enabled = false;
+            this.btnMqttTopic.Location = new System.Drawing.Point(6, 271);
+            this.btnMqttTopic.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnMqttTopic.Name = "btnMqttTopic";
+            this.btnMqttTopic.Size = new System.Drawing.Size(66, 24);
+            this.btnMqttTopic.TabIndex = 24;
+            this.btnMqttTopic.Text = "topic";
+            this.btnMqttTopic.UseVisualStyleBackColor = true;
             // 
             // tBoxDeviceID
             // 
@@ -867,10 +856,11 @@
             this.tBoxDeviceID.Name = "tBoxDeviceID";
             this.tBoxDeviceID.Size = new System.Drawing.Size(126, 21);
             this.tBoxDeviceID.TabIndex = 23;
-            this.tBoxDeviceID.Text = "IMSI로 대체";
+            this.tBoxDeviceID.Text = "450061222990103";
             // 
             // button5
             // 
+            this.button5.Enabled = false;
             this.button5.Location = new System.Drawing.Point(6, 242);
             this.button5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button5.Name = "button5";
@@ -898,16 +888,6 @@
             this.button3.Text = "서버포트";
             this.button3.UseVisualStyleBackColor = true;
             // 
-            // btnMqttSubscribe
-            // 
-            this.btnMqttSubscribe.Location = new System.Drawing.Point(6, 298);
-            this.btnMqttSubscribe.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnMqttSubscribe.Name = "btnMqttSubscribe";
-            this.btnMqttSubscribe.Size = new System.Drawing.Size(66, 24);
-            this.btnMqttSubscribe.TabIndex = 18;
-            this.btnMqttSubscribe.Text = "Sub ID";
-            this.btnMqttSubscribe.UseVisualStyleBackColor = true;
-            // 
             // tBoxSVCIP
             // 
             this.tBoxSVCIP.Location = new System.Drawing.Point(77, 185);
@@ -925,6 +905,7 @@
             this.btnMqttSocketOpen.TabIndex = 16;
             this.btnMqttSocketOpen.Text = "서버주소";
             this.btnMqttSocketOpen.UseVisualStyleBackColor = true;
+            this.btnMqttSocketOpen.Click += new System.EventHandler(this.BtnMqttSocketOpen_Click);
             // 
             // tBoxIccid
             // 
@@ -1104,8 +1085,8 @@
             this.tSStatusLblLTE,
             this.tSProgressLTE,
             this.tSStatusLblLWM2M1,
-            this.tSStatusLblLWM2M,
-            this.tSProgressLwm2m});
+            this.tSStatusLblMQTT,
+            this.tSProgressMQTT});
             this.statusStrip1.Location = new System.Drawing.Point(0, 398);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(733, 22);
@@ -1135,16 +1116,16 @@
             this.tSStatusLblLWM2M1.Size = new System.Drawing.Size(98, 17);
             this.tSStatusLblLWM2M1.Text = "     MQTT 통신 : ";
             // 
-            // tSStatusLblLWM2M
+            // tSStatusLblMQTT
             // 
-            this.tSStatusLblLWM2M.Name = "tSStatusLblLWM2M";
-            this.tSStatusLblLWM2M.Size = new System.Drawing.Size(65, 17);
-            this.tSStatusLblLWM2M.Text = "disconnect";
+            this.tSStatusLblMQTT.Name = "tSStatusLblMQTT";
+            this.tSStatusLblMQTT.Size = new System.Drawing.Size(65, 17);
+            this.tSStatusLblMQTT.Text = "disconnect";
             // 
-            // tSProgressLwm2m
+            // tSProgressMQTT
             // 
-            this.tSProgressLwm2m.Name = "tSProgressLwm2m";
-            this.tSProgressLwm2m.Size = new System.Drawing.Size(150, 16);
+            this.tSProgressMQTT.Name = "tSProgressMQTT";
+            this.tSProgressMQTT.Size = new System.Drawing.Size(150, 16);
             // 
             // timer2
             // 
@@ -1269,7 +1250,6 @@
         private System.Windows.Forms.TextBox tBoxIccid;
         private System.Windows.Forms.Button btnICCID;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Button btnMqttSubscribe;
         private System.Windows.Forms.TextBox tBoxSVCIP;
         private System.Windows.Forms.Button btnMqttSocketOpen;
         private System.Windows.Forms.TextBox tBoxSVCPort;
@@ -1281,15 +1261,15 @@
         private System.Windows.Forms.ComboBox cBoxATCMD;
         private System.Windows.Forms.TextBox tBoxDeviceID;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.TextBox tBoxMqttPublish;
-        private System.Windows.Forms.Button btnMqttPublish;
+        private System.Windows.Forms.TextBox tBoxMqttTopic;
+        private System.Windows.Forms.Button btnMqttTopic;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tSStatusLblLTE;
         private System.Windows.Forms.ToolStripProgressBar tSProgressLTE;
-        private System.Windows.Forms.ToolStripStatusLabel tSStatusLblLWM2M;
+        private System.Windows.Forms.ToolStripStatusLabel tSStatusLblMQTT;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel tSStatusLblLWM2M1;
-        private System.Windows.Forms.ToolStripProgressBar tSProgressLwm2m;
+        private System.Windows.Forms.ToolStripProgressBar tSProgressMQTT;
         private System.Windows.Forms.Timer timer2;
         private System.Windows.Forms.ToolStripMenuItem mQTTToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mQTTToolStripMenuOpen;
@@ -1298,7 +1278,6 @@
         private System.Windows.Forms.ToolStripMenuItem mQTTToolStripMenuItemUnsubcribe;
         private System.Windows.Forms.ToolStripMenuItem mQTTToolStripMenuDisconn;
         private System.Windows.Forms.ToolStripMenuItem mQTTToolStripMenuClose;
-        private System.Windows.Forms.TextBox tBoxMqttsubscribeID;
         private System.Windows.Forms.ToolStripMenuItem mQTTToolStripMenuDeviceInfo;
     }
 }
