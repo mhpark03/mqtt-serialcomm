@@ -1256,7 +1256,7 @@ namespace WindowsFormsApp2
             {
                 string pathname = @"c:\temp\seriallog\";
                 DateTime currenttime = DateTime.Now;
-                string filename = "atlog_" + currenttime.ToString("MMdd_hhmmss") + ".txt";
+                string filename = "mqtt_log_" + currenttime.ToString("MMdd_hhmmss") + ".txt";
 
                 Directory.CreateDirectory(pathname);
 
