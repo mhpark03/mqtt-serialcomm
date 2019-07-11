@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace WindowsFormsApp2
 {
@@ -184,7 +185,8 @@ namespace WindowsFormsApp2
             groupBox3.Height = groupBox4.Height - 35;
 
             tBoxDataIN.Height = groupBox3.Height - 54;
-            tBoxDataOut.Width = groupBox3.Width - 90;
+            tBoxDataTemp.Width = groupBox3.Width - 90;
+            tBoxDataHumi.Width = groupBox3.Width - 90;
         }
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -275,14 +277,6 @@ namespace WindowsFormsApp2
                 MessageBox.Show("RTS Enable", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else { serialPort1.RtsEnable = false; }
-        }
-
-        private void ClearToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (tBoxDataOut.Text != "")
-            {
-                tBoxDataOut.Text = "";
-            }
         }
 
         private void BtnATCMD_Click(object sender, EventArgs e)
@@ -1186,23 +1180,18 @@ namespace WindowsFormsApp2
 
         private void BtnSendData_Click(object sender, EventArgs e)
         {
-            //입력 Text값을 플랫폼 서버로 전송
-            sendDataToServer(tBoxDataOut.Text);
-        }
+            //온도와 습도 입력 Text값을 JSON 형태로 플랫폼 서버로 전송
+            InSensors inSensors = new InSensors();
+            inSensors.Temperature = tBoxDataTemp.Text;
+            inSensors.Humidity = tBoxDataHumi.Text;
+            string text = JsonConvert.SerializeObject(inSensors);
+            logPrintInTextBox(text, "");
 
-        private void TBoxDataOut_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                //입력 Text값을 플랫폼 서버로 전송
-                this.sendDataToServer(tBoxDataOut.Text);
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
-        }
+            InSensors inSensors1 = JsonConvert.DeserializeObject<InSensors>(text);
+            text = string.Empty;
+            text = "온도 : " + inSensors1.Temperature + ", 습도 : " + inSensors1.Humidity;
+            logPrintInTextBox(text, "");
 
-        private void sendDataToServer(string text)
-        {
             if ((tSStatusLblMQTT.Text == "subscribe") || (tSStatusLblMQTT.Text == "connect") || (tSStatusLblMQTT.Text == "unsubscribe"))
             {
                 // Data send to SERVER (string original)
