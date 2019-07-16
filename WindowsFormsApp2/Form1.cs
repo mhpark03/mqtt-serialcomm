@@ -899,8 +899,15 @@ namespace WindowsFormsApp2
                 string[] words = str2.Split(',');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
                 if (words[0] == " 0")       // MQTT 소켓 ID ("0"만 사용)
                 {
-                    logPrintInTextBox(words[3] + "를 수신하였습니다.", "");
-                    //logPrintInTextBox(words[3].Substring(1, words[3].Length - 2) + "를 수신하였습니다.", "");
+                    string base64 = words[3].Substring(1, words[3].Length - 2);
+                    byte[] orgBytes = Convert.FromBase64String(base64);
+                    string orgStr = Encoding.UTF8.GetString(orgBytes);
+                    logPrintInTextBox("\"" + orgStr + "\"를 수신하였습니다.", "");
+
+                    InSensors inSensors1 = JsonConvert.DeserializeObject<InSensors>(orgStr);
+                    string text = "온도 : " + inSensors1.Temperature + ", 습도 : " + inSensors1.Humidity;
+
+                    logPrintInTextBox("\"" + text + "\"를 수신하였습니다.", "");
                 }
                 else
                 {
@@ -1180,25 +1187,23 @@ namespace WindowsFormsApp2
 
         private void BtnSendData_Click(object sender, EventArgs e)
         {
-            //온도와 습도 입력 Text값을 JSON 형태로 플랫폼 서버로 전송
-            InSensors inSensors = new InSensors();
-            inSensors.Temperature = tBoxDataTemp.Text;
-            inSensors.Humidity = tBoxDataHumi.Text;
-            string text = JsonConvert.SerializeObject(inSensors);
-            logPrintInTextBox(text, "");
-
-            InSensors inSensors1 = JsonConvert.DeserializeObject<InSensors>(text);
-            text = string.Empty;
-            text = "온도 : " + inSensors1.Temperature + ", 습도 : " + inSensors1.Humidity;
-            logPrintInTextBox(text, "");
-
-            if ((tSStatusLblMQTT.Text == "subscribe") || (tSStatusLblMQTT.Text == "connect") || (tSStatusLblMQTT.Text == "unsubscribe"))
+            string mqttstate = tSStatusLblMQTT.Text;
+            if ((mqttstate == "subscribe") || (mqttstate == "connect") || (mqttstate == "unsubscribe"))
             {
+                //온도와 습도 입력 Text값을 JSON 형태로 플랫폼 서버로 전송
+                InSensors inSensors = new InSensors();
+                inSensors.Temperature = tBoxDataTemp.Text;
+                inSensors.Humidity = tBoxDataHumi.Text;
+                string text = JsonConvert.SerializeObject(inSensors);
+                logPrintInTextBox(text, "");
+
+                string base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+
                 // Data send to SERVER (string original)
-                this.sendDataOut(commands["mqttpub"] + tBoxMqttTopic.Text + "\"," + text.Length);
+                this.sendDataOut(commands["mqttpub"] + tBoxMqttTopic.Text + "\"," + base64.Length);
                 tBoxActionState.Text = states.mqttpub.ToString();
 
-                MQTT_Msg = text;
+                MQTT_Msg = base64;
 
                 timer1.Start();
             }
